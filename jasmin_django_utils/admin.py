@@ -9,7 +9,7 @@ from django.conf.urls import url
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import render, redirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_text
