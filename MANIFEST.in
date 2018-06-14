@@ -1,2 +1,2 @@
-include versioneer.py
-include jasmin_django_utils/_version.py
+include *.md *.txt *.cfg LICENSE
+recursive-include jasmin_django_utils *.ico *.png *.gif *.jpg *.svg *.eot *.ttf *.woff *.css *.js *.txt *.html *.json *.example
