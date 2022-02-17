@@ -76,7 +76,7 @@ class EnumField(models.CharField):
         ]
 
     def value_to_string(self, obj):
-        value = self._get_val_from_obj(obj)
+        value = self.value_from_object(obj)
         return value.value if value else None
 
     def from_db_value(self, value, expression, connection):
