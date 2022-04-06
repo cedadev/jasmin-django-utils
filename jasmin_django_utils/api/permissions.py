@@ -7,4 +7,4 @@ class IsAdminUserOrTokenHasResourceScope(rf_perms.OR):
     """Permission class to allow admin user access OR correctly scoped OAuth2 tokens."""
 
     def __init__(self):
-        super().__init__(oauth2_rf.TokenHasResourceScope, rf_perms.IsAdminUser)
+        super().__init__(oauth2_rf.TokenHasResourceScope(), rf_perms.IsAdminUser())
