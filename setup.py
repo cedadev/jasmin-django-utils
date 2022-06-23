@@ -12,8 +12,7 @@ with open(os.path.join(here, "README.md")) as f:
 if __name__ == "__main__":
     setup(
         name="jasmin-django-utils",
-        setup_requires=["setuptools_scm"],
-        use_scm_version=True,
+        version="1.0.6",
         description="Django utilities used by JASMIN apps.",
         long_description=README,
         classifiers=[
