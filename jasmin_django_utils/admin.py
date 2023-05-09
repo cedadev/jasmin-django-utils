@@ -1,17 +1,15 @@
-"""
-Admin customisations to allow exporting of selected objects as CSV.
-"""
+"""Admin customisations to allow exporting of selected objects as CSV."""
 
 import csv
 import uuid
 
 import django.urls
+import django.utils.encoding
 from django import forms
 from django.contrib import admin
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
 
@@ -49,7 +47,7 @@ class RawIdWidget(forms.TextInput):
         if attrs is None:
             attrs = {}
         if value:
-            value = ",".join(force_text(v) for v in value)
+            value = ",".join(django.utils.encoding.force_str(v) for v in value)
         else:
             value = ""
         extra = []
