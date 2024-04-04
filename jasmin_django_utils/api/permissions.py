@@ -1,4 +1,5 @@
 """Extra permission classes for the jasmin api."""
+
 import oauth2_provider.contrib.rest_framework as oauth2_rf
 import rest_framework.permissions as rf_perms
 

@@ -4,8 +4,8 @@ Settings utilities for Django apps.
 
 import re
 
-from django.utils.module_loading import import_string
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.module_loading import import_string
 
 
 class SettingsObject:
@@ -16,6 +16,7 @@ class SettingsObject:
         name: The name of the settings object.
         user_settings: A dictionary of user settings.
     """
+
     def __init__(self, name, user_settings):
         self.name = name
         self.user_settings = user_settings
@@ -30,36 +31,39 @@ class Setting:
                  is called with the owning py:class:`SettingsObject` as it's only
                  argument. Defaults to ``NO_DEFAULT``.
     """
+
     #: Sentinel object representing no default. A sentinel is required because
     #: ``None`` is a valid default value.
     NO_DEFAULT = object()
 
-    def __init__(self, default = NO_DEFAULT):
+    def __init__(self, default=NO_DEFAULT):
         self.default = default
 
     def __set_name__(self, owner, name):
         self.name = name
 
     def __get__(self, instance, owner):
-        # Settings should be accessed as instance attributes
+        # Settings should be accessed as instance attributes
         if not instance:
-            raise TypeError('Settings cannot be accessed as class attributes')
+            raise TypeError("Settings cannot be accessed as class attributes")
         if not isinstance(instance, SettingsObject):
-            raise TypeError('Settings should belong to a SettingsObject')
+            raise TypeError("Settings should belong to a SettingsObject")
         try:
             return instance.user_settings[self.name]
         except KeyError:
             return self._get_default(instance)
 
     def _get_default(self, instance):
-        # This is provided as a separate method for easier overriding
+        # This is provided as a separate method for easier overriding
         if self.default is self.NO_DEFAULT:
-            raise ImproperlyConfigured('Required setting: {}.{}'.format(instance.name, self.name))
+            raise ImproperlyConfigured(
+                "Required setting: {}.{}".format(instance.name, self.name)
+            )
         return self.default(instance) if callable(self.default) else self.default
 
     def __set__(self, instance, value):
-        # This method exists so that the descriptor is considered a data-descriptor
-        raise AttributeError('Settings are read-only')
+        # This method exists so that the descriptor is considered a data-descriptor
+        raise AttributeError("Settings are read-only")
 
 
 class ImportStringSetting(Setting):
@@ -67,6 +71,7 @@ class ImportStringSetting(Setting):
     Property descriptor for a setting that is a dotted-path string that should be
     imported.
     """
+
     def __get__(self, instance, owner):
         return import_string(super().__get__(instance, owner))
 
@@ -86,35 +91,36 @@ class ObjectFactorySetting(Setting):
 
     Keys in ``PARAMS`` are lower-cased and used as ``kwargs`` for the factory.
     """
+
     MISSING_ARG_REGEX = r"missing \d+ required positional arguments?: "
     INVALID_ARG_MATCH = "got an unexpected keyword argument"
     ARG_NAME_REGEX = r"'(\w+)'"
 
     def __get__(self, instance, owner):
         factory_definition = super().__get__(instance, owner)
-        factory = import_string(factory_definition['FACTORY'])
-        kwargs = { k.lower(): v for k, v in factory_definition['PARAMS'].items() }
-        # We want to convert type errors for missing or invalid arguments into
-        # errors about missing or invalid settings
+        factory = import_string(factory_definition["FACTORY"])
+        kwargs = {k.lower(): v for k, v in factory_definition["PARAMS"].items()}
+        # We want to convert type errors for missing or invalid arguments into
+        # errors about missing or invalid settings
         try:
             return factory(**kwargs)
         except TypeError as exc:
             message = str(exc)
             if re.search(self.MISSING_ARG_REGEX, message):
                 required = [
-                    '{}.{}.PARAMS.{}'.format(instance.name, self.name, name.upper())
+                    "{}.{}.PARAMS.{}".format(instance.name, self.name, name.upper())
                     for name in re.findall(self.ARG_NAME_REGEX, message)
                 ]
                 raise ImproperlyConfigured(
-                    'Required setting(s): {}'.format(', '.join(required))
+                    "Required setting(s): {}".format(", ".join(required))
                 )
             elif self.INVALID_ARG_MATCH in message:
                 match = re.search(self.ARG_NAME_REGEX, message)
                 raise ImproperlyConfigured(
-                    'Invalid setting: {}.{}.PARAMS.{}'.format(
+                    "Invalid setting: {}.{}.PARAMS.{}".format(
                         instance.name, self.name, match.group(1).upper()
                     )
                 )
             else:
-                # Re-raise any other type error
+                # Re-raise any other type error
                 raise
